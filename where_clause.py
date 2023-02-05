@@ -30,111 +30,131 @@ def get_all_combo_lists(max_list_len):
 	return result
 
 def get_join_graph():
-    get_init_data()
-    max_list_len = 2
-    join_graph = []
-    key_attributes = []
-    for elt in reveal_globals.global_key_lists:
-        if len(elt) > max_list_len:
-            max_list_len = len(elt)
-    combo_dict_of_lists = get_all_combo_lists(max_list_len)
-    attrib_types_dict = {}
-    for entry in reveal_globals.global_attrib_types:
-        attrib_types_dict[(entry[0], entry[1])] = entry[2]
-    dummy_int = 2
-    dummy_char = 65 # to avoid having space/tab
-    dummy_date = datetime.date(1000,1,1)
-    #For each list, test its presence in join graph
-    #This will either add the list in join graph or break it
-    reveal_globals.global_attrib_dict['join'] = []
-    k = 0
-    while not (not reveal_globals.global_key_lists):
-        curr_list = reveal_globals.global_key_lists[0]
-        if len(curr_list) <=1:
-            reveal_globals.global_key_lists.remove(curr_list)
-            continue
-        k +=1
-        reveal_globals.global_attrib_dict['join'].append("Component-" + str(k))
-        reveal_globals.global_join_instance_dict['Component-'+str(k)] = []
-        reveal_globals.global_component_dict['Component-'+str(k)] = curr_list
-        #Try for all possible combinations
-        for elt in combo_dict_of_lists[len(curr_list)]:
-            reveal_globals.local_other_info_dict = {}
-            list1 = []
-            list_type = ''
-            list2 = []
-            for index in elt:
-                list1.append(curr_list[index])
-                if list_type == '':
-                    list_type = attrib_types_dict[curr_list[index]]
-            for val in curr_list:
-                if val not in list1:
-                    list2.append(val)
-            #Assign two different values to two lists in database
-            val1 = str(dummy_int)
-            val2 = str(dummy_int + 1)
-            if 'date' in list_type:
-                val1 = str(dummy_date)
-                val2 = str(dummy_date + datetime.timedelta(days = 1))
-            elif not('int' in list_type or 'numeric' in list_type):
-                val1 = str(chr(dummy_char))
-                val2 = str(chr(dummy_char + 1))
-            cur = reveal_globals.global_conn.cursor()
-            temp_copy = {}
-            for tab in reveal_globals.global_core_relations:
-                temp_copy[tab] = reveal_globals.global_min_instance_dict[tab]
-            for val in list1:
-                cur.execute("update " + val[0] + " set " + val[1] + " = " + val1 + ";")
-                index = temp_copy[val[0]][0].index(val[1])
-                mutated_list = copy.deepcopy(list(temp_copy[val[0]][1]))
-                mutated_list[index] = str(val1)
-                temp_copy[val[0]][1] = tuple(mutated_list)
-            cur.close()
-            cur = reveal_globals.global_conn.cursor()
-            for val in list2:
-                cur.execute("update " + val[0] + " set " + val[1] + " = " + val2 + ";")
-                index = temp_copy[val[0]][0].index(val[1])
-                mutated_list = copy.deepcopy(list(temp_copy[val[0]][1]))
-                mutated_list[index] = str(val2)
-                temp_copy[val[0]][1] = tuple(mutated_list)
-            cur.close()
-            #Hardcoding for demo, need to be revised
-            reveal_globals.global_join_instance_dict['Component-'+str(k)].append(u"" + list1[0][1] + u"\u2014"+list2[0][1])
-            reveal_globals.local_other_info_dict['Current Mutation'] = 'Mutation of '+list1[0][1]+' with value '+str(val1)+ " and "+ list2[0][1]+' with value '+str(val2)
-            for tabname in reveal_globals.global_core_relations:
-                reveal_globals.global_min_instance_dict['join_'+reveal_globals.global_attrib_dict['join'][-1]+'_'+tabname+'_'+reveal_globals.global_join_instance_dict['Component-'+str(k)][-1]] = copy.deepcopy(temp_copy[tabname])
-            ########################################
-            #CHECK THE RESULT
-            new_result = executable.getExecOutput()
-            reveal_globals.global_result_dict['join_'+reveal_globals.global_attrib_dict['join'][-1] + '_' + reveal_globals.global_join_instance_dict['Component-'+str(k)][-1]] = new_result
-            reveal_globals.local_other_info_dict['Result Cardinality'] = len(new_result) - 1
-            if len(new_result) > 1:
-                reveal_globals.local_other_info_dict['Conclusion'] = 'Selected edge(s) are not present in the join graph'
-                reveal_globals.global_key_lists.remove(curr_list)
-                reveal_globals.global_key_lists.append(copy.deepcopy(list1))
-                reveal_globals.global_key_lists.append(copy.deepcopy(list2))
-                break
-        if curr_list in reveal_globals.global_key_lists:
-            reveal_globals.global_key_lists.remove(curr_list)
-            join_graph.append(copy.deepcopy(curr_list))
-            reveal_globals.local_other_info_dict['Conclusion'] = u'Edge ' + list1[0][1] + u"\u2014" + list2[0][1] + ' is present in the join graph'
-            #Assign same values in all cur_lists to get non-empty output
-        reveal_globals.global_other_info_dict['join_' + reveal_globals.global_attrib_dict['join'][-1] + '_' + reveal_globals.global_join_instance_dict['Component-'+str(k)][-1]] = copy.deepcopy(reveal_globals.local_other_info_dict)
-        cur = reveal_globals.global_conn.cursor()
-        for val in curr_list:
-            cur.execute("Insert into " + val[0] + " Select * from " +  val[0] + "4;")
-            # cur.execute("copy " + val[0] + " from " + "'" + reveal_globals.global_reduced_data_path + val[0] + ".csv' " + "delimiter ',' csv header;")
-        cur.close()
-    #refine join graph and get all key attributes
-    reveal_globals.global_join_graph = []
-    reveal_globals.global_key_attributes = []
-    for elt in join_graph:
-        temp = []
-        for val in elt:
-            temp.append(val[1])
-            reveal_globals.global_key_attributes.append(val[1])
-        reveal_globals.global_join_graph.append(copy.deepcopy(temp))
-    return
+	get_init_data()
+	max_list_len = 2
+	join_graph = []
+	key_attributes = []
+	for elt in reveal_globals.global_key_lists:
+		if len(elt) > max_list_len:
+			max_list_len = len(elt)
+	combo_dict_of_lists = get_all_combo_lists(max_list_len)
+	attrib_types_dict = {}
+	for entry in reveal_globals.global_attrib_types:
+		attrib_types_dict[(entry[0], entry[1])] = entry[2]
+	dummy_int = 2
+	dummy_char = 65 # to avoid having space/tab
+	dummy_date = datetime.date(1000,1,1)
+	#For each list, test its presence in join graph
+	#This will either add the list in join graph or break it
+	reveal_globals.global_attrib_dict['join'] = []
+	k = 0
+	while not (not reveal_globals.global_key_lists):
+		curr_list = reveal_globals.global_key_lists[0]
+		if len(curr_list) <=1:
+			reveal_globals.global_key_lists.remove(curr_list)
+			continue
+		k +=1
+		reveal_globals.global_attrib_dict['join'].append("Component-" + str(k))
+		reveal_globals.global_join_instance_dict['Component-'+str(k)] = []
+		reveal_globals.global_component_dict['Component-'+str(k)] = curr_list
+		#Try for all possible combinations
+		for elt in combo_dict_of_lists[len(curr_list)]:
+			reveal_globals.local_other_info_dict = {}
+			list1 = []
+			list_type = ''
+			list2 = []
+			for index in elt:
+				list1.append(curr_list[index])
+				if list_type == '':
+					list_type = attrib_types_dict[curr_list[index]]
+			for val in curr_list:
+				if val not in list1:
+					list2.append(val)
+			#Assign two different values to two lists in database
+			val1 = str(dummy_int)
+			val2 = str(dummy_int + 1)
+			if 'date' in list_type:
+				val1 = str(dummy_date)
+				val2 = str(dummy_date + datetime.timedelta(days = 1))
+			elif not('int' in list_type or 'numeric' in list_type):
+				val1 = str(chr(dummy_char))
+				val2 = str(chr(dummy_char + 1))
+			cur = reveal_globals.global_conn.cursor()
+			temp_copy = {}
+			for tab in reveal_globals.global_core_relations:
+				temp_copy[tab] = reveal_globals.global_min_instance_dict[tab]
+			for val in list1:
+				cur.execute("update " + val[0] + " set " + val[1] + " = " + val1 + ";")
+				index = temp_copy[val[0]][0].index(val[1])
+				mutated_list = copy.deepcopy(list(temp_copy[val[0]][1]))
+				mutated_list[index] = str(val1)
+				temp_copy[val[0]][1] = tuple(mutated_list)
+			cur.close()
+			cur = reveal_globals.global_conn.cursor()
+			for val in list2:
+				cur.execute("update " + val[0] + " set " + val[1] + " = " + val2 + ";")
+				index = temp_copy[val[0]][0].index(val[1])
+				mutated_list = copy.deepcopy(list(temp_copy[val[0]][1]))
+				mutated_list[index] = str(val2)
+				temp_copy[val[0]][1] = tuple(mutated_list)
+			cur.close()
+			#Hardcoding for demo, need to be revised
+			reveal_globals.global_join_instance_dict['Component-'+str(k)].append(u"" + list1[0][1] + u"\u2014"+list2[0][1])
+			reveal_globals.local_other_info_dict['Current Mutation'] = 'Mutation of '+list1[0][1]+' with value '+str(val1)+ " and "+ list2[0][1]+' with value '+str(val2)
+			for tabname in reveal_globals.global_core_relations:
+				reveal_globals.global_min_instance_dict['join_'+reveal_globals.global_attrib_dict['join'][-1]+'_'+tabname+'_'+reveal_globals.global_join_instance_dict['Component-'+str(k)][-1]] = copy.deepcopy(temp_copy[tabname])
+			########################################
+			#CHECK THE RESULT
+			new_result = executable.getExecOutput()
+			reveal_globals.global_result_dict['join_'+reveal_globals.global_attrib_dict['join'][-1] + '_' + reveal_globals.global_join_instance_dict['Component-'+str(k)][-1]] = new_result
+			reveal_globals.local_other_info_dict['Result Cardinality'] = len(new_result) - 1
+			# if len(new_result) > 1:
+			#extra nullity check sneha
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+				#sneha. if result if empty then, join present.
+				#in OJ case if result tuple has atleast one null attribute, then any join present
+				#sneha. if result is noy empty then joint present. 
+				# in oj caseif result tuples have no null attribute then  any join not present 
+			if flag == 1: #if len(new_result) > 1:
+				reveal_globals.local_other_info_dict['Conclusion'] = 'Selected edge(s) are not present in the join graph'
+				reveal_globals.global_key_lists.remove(curr_list)
+				reveal_globals.global_key_lists.append(copy.deepcopy(list1))
+				reveal_globals.global_key_lists.append(copy.deepcopy(list2))
+				break
+		if curr_list in reveal_globals.global_key_lists:
+			reveal_globals.global_key_lists.remove(curr_list)
+			join_graph.append(copy.deepcopy(curr_list))
+			reveal_globals.local_other_info_dict['Conclusion'] = u'Edge ' + list1[0][1] + u"\u2014" + list2[0][1] + ' is present in the join graph'
+			#Assign same values in all cur_lists to get non-empty output
+		reveal_globals.global_other_info_dict['join_' + reveal_globals.global_attrib_dict['join'][-1] + '_' + reveal_globals.global_join_instance_dict['Component-'+str(k)][-1]] = copy.deepcopy(reveal_globals.local_other_info_dict)
+		cur = reveal_globals.global_conn.cursor()
+		for val in curr_list:
+			cur.execute("Insert into " + val[0] + " Select * from " +  val[0] + "4;")
+			# cur.execute("copy " + val[0] + " from " + "'" + reveal_globals.global_reduced_data_path + val[0] + ".csv' " + "delimiter ',' csv header;")
+		cur.close()
+	#refine join graph and get all key attributes
+	reveal_globals.global_join_graph = []
+	reveal_globals.global_key_attributes = []
+	for elt in join_graph:
+		temp = []
+		for val in elt:
+			temp.append(val[1])
+			reveal_globals.global_key_attributes.append(val[1])
+		reveal_globals.global_join_graph.append(copy.deepcopy(temp))
+	return
 
 
 
@@ -229,7 +249,22 @@ def checkAttribValueEffect(tabname, attrib, val):
 	cur.execute(query)
 	cur.close()
 	new_result = executable.getExecOutput()
-	if len(new_result) <= 1:
+	#extra nullity check aman
+	first = 0
+	flag = 0
+	for tup in new_result:
+		chk = 0
+		if first == 0:
+			first = 1
+			continue
+		for val in tup:
+			if val == 'None':
+				chk = 1
+				break
+		if chk == 0:
+			flag = 1
+			break
+	if flag == 0: #len(new_result) <= 1:
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("Truncate Table " + tabname + ";")
 		cur.close()
@@ -238,9 +273,14 @@ def checkAttribValueEffect(tabname, attrib, val):
 		cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 		cur.close()
 	update_other_data(tabname, attrib, 'int', val, new_result, [])
-	if len(new_result) > 1:
+	# if len(new_result) > 1:
+	# 	return True
+	# return False
+	#extra nullity check aman
+	if flag == 1: #if len(new_result) > 1:
 		return True
 	return False
+
 
 #mukul	
 def getFloatFilterValue(tabname, filter_attrib, min_val, max_val, operator):
@@ -335,7 +375,22 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
     			#put filter_
 				update_other_data(tabname, filter_attrib, 'int', mid_val, new_result, [low, mid_val, high, low, mid_val-1])
 				high = mid_val - 1
@@ -360,7 +415,22 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
     			#put filter_
 				update_other_data(tabname, filter_attrib, 'int', mid_val, new_result, [low, mid_val, high, mid_val+1, high])
 				low = mid_val + 1
@@ -385,7 +455,22 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 		cur.execute(query)
 		cur.close()
 		new_result = executable.getExecOutput()
-		if len(new_result) <= 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_low = False
 		#put filter_
 		update_other_data(tabname, filter_attrib, 'int', low, new_result, [])
@@ -401,11 +486,28 @@ def getIntFilterValue(tabname, filter_attrib, min_val, max_val, operator):
 		# cur.execute("copy " + tabname + " from " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
 		cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 		cur.close()
-		if len(new_result) <= 1:
+		# if len(new_result) <= 1:
+		# 	flag_high = False
+		# return (flag_low == False and flag_high == False)
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_high = False
 		return (flag_low == False and flag_high == False)
 	return False
-
 
 def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 	counter = 0
@@ -430,7 +532,22 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
 				update_other_data(tabname, attrib, 'int', mid_val, new_result, [low, mid_val, high, low, mid_val- datetime.timedelta(days= 1)])
 				high = mid_val - datetime.timedelta(days= 1)
 			else:
@@ -453,7 +570,22 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 			cur.execute(query)
 			cur.close()
 			new_result = executable.getExecOutput()
-			if len(new_result) <= 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 0: #if len(new_result) <= 1:
 				update_other_data(tabname, attrib, 'int', mid_val, new_result, [low, mid_val, high, mid_val + datetime.timedelta(days= 1), high])
 				low = mid_val + datetime.timedelta(days= 1)
 			else:
@@ -477,7 +609,22 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 		cur.close()
 		new_result = executable.getExecOutput()
 		update_other_data(tabname, attrib, 'int', low, new_result, [])
-		if len(new_result) <= 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_low = False
 		query =  query_front + " '" + str(high) + "' " + query_back + ";"
 		cur = reveal_globals.global_conn.cursor()
@@ -490,7 +637,25 @@ def getDateFilterValue(tabname, attrib, min_val, max_val, operator):
 		# cur.execute("copy " + tabname + " from " + "'" + reveal_globals.global_reduced_data_path + tabname + ".csv' " + "delimiter ',' csv header;")
 		cur.execute("Insert into " + tabname + " Select * from " +  tabname + "4;")
 		cur.close()
-		if len(new_result) <= 1:
+		# if len(new_result) <= 1:
+		# 	flag_high = False
+		# return (flag_low == False and flag_high == False)
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 0: #if len(new_result) <= 1:
 			flag_high = False
 		return (flag_low == False and flag_high == False)
 	return False
@@ -510,7 +675,22 @@ def checkStringPredicate(tabname, attrib):
 	cur.close()
 	new_result = executable.getExecOutput()
 	update_other_data(tabname, attrib, 'text', val, new_result, [])
-	if len(new_result) <= 1:
+	#extra nullity check aman
+	first = 0
+	flag = 0
+	for tup in new_result:
+		chk = 0
+		if first == 0:
+			first = 1
+			continue
+		for val in tup:
+			if val == 'None':
+				chk = 1
+				break
+		if chk == 0:
+			flag = 1
+			break
+	if flag == 0: #if len(new_result) <= 1:
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("Truncate Table " + tabname + ";")
 		#conn.commit()
@@ -527,7 +707,22 @@ def checkStringPredicate(tabname, attrib):
 	cur.close()
 	new_result = executable.getExecOutput()
 	update_other_data(tabname, attrib, 'text', "''", new_result, [])
-	if len(new_result) <= 1:
+	#extra nullity check aman
+	first = 0
+	flag = 0
+	for tup in new_result:
+		chk = 0
+		if first == 0:
+			first = 1
+			continue
+		for val in tup:
+			if val == 'None':
+				chk = 1
+				break
+		if chk == 0:
+			flag = 1
+			break
+	if flag == 0: #if len(new_result) <= 1:
 		cur = reveal_globals.global_conn.cursor()
 		cur.execute("Truncate Table " + tabname + ";")
 		cur.close()
@@ -558,7 +753,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 		cur.close()
 		new_result = executable.getExecOutput()
 		update_other_data(tabname, attrib, 'text', temp, new_result, [])
-		if len(new_result) > 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 1: #if len(new_result) > 1:
 			reveal_globals.local_other_info_dict['Conclusion'] = "'" + representative[index] + "' is a replacement for wildcard character '%' or '_'"
 			reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict)
 			temp = copy.deepcopy(representative)
@@ -570,7 +780,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 			cur.close()
 			new_result = executable.getExecOutput()
 			update_other_data(tabname, attrib, 'text', temp, new_result, [])
-			if len(new_result) > 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 1: #if len(new_result) > 1:
 				reveal_globals.local_other_info_dict['Conclusion'] = "'" + representative[index] + "' is a replacement from wildcard character '%'"
 				reveal_globals.global_other_info_dict['filter_'+attrib+'_D_mut'+str(reveal_globals.local_instance_no - 1)] = copy.deepcopy(reveal_globals.local_other_info_dict)
 				representative = representative[:index] + representative[index+1:]
@@ -609,7 +834,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 			cur.close()
 			new_result = executable.getExecOutput()
 			update_other_data(tabname, attrib, 'text', temp, new_result, [])
-			if len(new_result) > 1:
+			#extra nullity check aman
+			first = 0
+			flag = 0
+			for tup in new_result:
+				chk = 0
+				if first == 0:
+					first = 1
+					continue
+				for val in tup:
+					if val == 'None':
+						chk = 1
+						break
+				if chk == 0:
+					flag = 1
+					break
+			if flag == 1: #if len(new_result) > 1:
 				output = output + '%'
 			output = output + representative[index]
 			index = index + 1
@@ -627,7 +867,22 @@ def getStrFilterValue(tabname, attrib, representative, max_length):
 		cur.close()
 		new_result = executable.getExecOutput()
 		update_other_data(tabname, attrib, 'text', temp, new_result, [])
-		if len(new_result) > 1:
+		#extra nullity check aman
+		first = 0
+		flag = 0
+		for tup in new_result:
+			chk = 0
+			if first == 0:
+				first = 1
+				continue
+			for val in tup:
+				if val == 'None':
+					chk = 1
+					break
+			if chk == 0:
+				flag = 1
+				break
+		if flag == 1: #if len(new_result) > 1:
 			output = output + '%'
 	return output
 

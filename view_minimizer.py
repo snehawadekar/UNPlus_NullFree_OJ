@@ -1,6 +1,6 @@
 #working correct last update :dec 10,2022
 
-
+import check_nullfree
 import os
 import sys
 import csv
@@ -10,7 +10,7 @@ import executable
 sys.path.append('../') 
 import reveal_globals
 import psycopg2
-import Views
+
 import psycopg2.extras
 import operator
 import time
@@ -95,18 +95,31 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 			cur.close()
 
 			#Run query and analyze the result now
-			new_result = executable.getExecOutput()
-			reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute('drop view '+ tabname + ';')
-			cur.close()
-			if len(new_result) <= 1:
+			# new_result = executable.getExecOutput()
+			# reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+			# cur = reveal_globals.global_conn.cursor()
+			# cur.execute('drop view '+ tabname + ';')
+			# cur.close()
+			# if len(new_result) <= 1:
+			# 	#Take the lower half
+			# 	start_ctid = mid_ctid2
+			# else:
+			# 	#Take the upper half
+			# 	end_ctid = mid_ctid1
+			# # start_page=start_ctid[0]
+   
+			#UN+nf
+			if check_nullfree.getExecOutput() == False:
 				#Take the lower half
 				start_ctid = mid_ctid2
 			else:
 				#Take the upper half
 				end_ctid = mid_ctid1
-			# start_page=start_ctid[0]
+    
+			cur = reveal_globals.global_conn.cursor()
+			cur.execute('drop view '+ tabname + ';')
+			cur.close()
+
 			start_ctid2 = start_ctid.split(",")
 			start_page = int(start_ctid2[0][1:])
 			end_ctid2 = end_ctid.split(",")
@@ -180,19 +193,34 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 			cur.close()
 
 			#Run query and analyze the result now
-			new_result = executable.getExecOutput()
-			reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-			cur = reveal_globals.global_conn.cursor()
-			cur.execute('drop view '+ tabname + ';')
-			cur.close()
+			# new_result = executable.getExecOutput()
+			# reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+			# cur = reveal_globals.global_conn.cursor()
+			# cur.execute('drop view '+ tabname + ';')
+			# cur.close()
    
-			if len(new_result) <= 1:
+			# if len(new_result) <= 1:
+			# 	#Take the lower half
+			# 	start_ctid = mid_ctid2
+			# else:
+			# 	#Take the upper half
+			# 	end_ctid = mid_ctid1
+			# # start_page=start_ctid[0]
+   
+			#UN+nf
+			if check_nullfree.getExecOutput() == False:
 				#Take the lower half
 				start_ctid = mid_ctid2
 			else:
 				#Take the upper half
 				end_ctid = mid_ctid1
-			# start_page=start_ctid[0]
+    
+			cur = reveal_globals.global_conn.cursor()
+			cur.execute('drop view '+ tabname + ';')
+			cur.close()
+   
+   
+   
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute("create table " + tabname + " as select * from "+ tabname +"1 where ctid >= '" + str(start_ctid) + "' and ctid <= '" + str(end_ctid) + "'  ; ")
 			cur.execute('drop table ' + tabname + '1 ;')
@@ -205,10 +233,16 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 			print("REMAINING TABLE SIZE", core_sizes[tabname])
 
 		#SANITY CHECK
-		new_result = executable.getExecOutput()
-		if len(new_result) <= 1:
+		# new_result = executable.getExecOutput()
+		# if len(new_result) <= 1:
+		# 	print("Error: Query out of extractable domain\n")
+		# 	return False
+
+		#UN+nf
+		if check_nullfree.getExecOutput() == False:
 			print("Error: Query out of extractable domain\n")
 			return False
+		
 	
     # create the tables from views 
 	# for tabname in reveal_globals.global_core_relations:
@@ -242,10 +276,14 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		cur.close()
 		print(tabname, "==", res)
 	#SANITY CHECK
-	new_result = executable.getExecOutput()
-	if len(new_result) <= 1:
+	# new_result = executable.getExecOutput()
+	# if len(new_result) <= 1:
+	# 	print("Error: Query out of extractable domain\n")
+	# 	return False
+	if check_nullfree.getExecOutput() == False:
 		print("Error: Query out of extractable domain\n")
 		return False
+	
 	#populate screen data
 	#POPULATE MIN INSTANCE DICT
 	reveal_globals.view_min_time=time.time()-start_time
@@ -258,6 +296,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		for index, row in df.iterrows():
 			reveal_globals.global_min_instance_dict[tabname].append(tuple(row))
 	#populate other data
+	new_result=executable.getExecOutput()
 	reveal_globals.global_result_dict['min'] = copy.deepcopy(new_result)
 	reveal_globals.local_other_info_dict['Result Cardinality'] = str(len(new_result) - 1)
 	reveal_globals.global_other_info_dict['min'] = copy.deepcopy(reveal_globals.local_other_info_dict)

@@ -1,4 +1,4 @@
-import executable 
+import check_nullfree 
 import reveal_globals
 import time
 import psycopg2
@@ -40,7 +40,7 @@ def correlated_sampling_start():
 	#restore original tables somewhere
 	start_time=time.time()
 	while itr>0:
-		if correlated_sampling()== False:
+		if correlated_sampling() == False:
 			print('sampling failed in iteraation', itr)
 			itr = itr-1
 		else:
@@ -64,11 +64,6 @@ def correlated_sampling_start():
 	# cs sampling time
 	reveal_globals.cs_time = time.time() - start_time
 	return
-
-			
-   
-        
-
     
 def correlated_sampling():
     # view based correlated sampling
@@ -121,8 +116,8 @@ def correlated_sampling():
 	# 	cs[table] = int(str(t[0]))
 	# 	cur.close()
 	# print(cs)
-	new_result= executable.getExecOutput()
-	if len(new_result)<=1:
+	# new_result= check_nullfree.getExecOutput()
+	if check_nullfree.getExecOutput() == False :
 		print('sampling failed in iteraation')
 		cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		for table in reveal_globals.global_all_relations:

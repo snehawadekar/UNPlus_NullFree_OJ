@@ -275,6 +275,7 @@ def func_min_start():
     # cur.close()
     # for i in temp:
     #     reveal_globals.global_all_relations.append(i[0])
+    establishConnection()
     for tabname in reveal_globals.global_all_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute("DROP TABLE IF EXISTS " + tabname + "_restore;")
@@ -888,11 +889,13 @@ reveal_globals.minimizer="view_based"
 
 #Queries [Level - 2]
 #kkk report Q1, simplified
-reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
+#results done
+# reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
 #Q2
+#results done
 # reveal_globals.query1 = "Select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment From part, supplier, partsupp, nation, region Where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' Order by s_acctbal desc, n_name, s_name Limit 100;"
 #Q5
-# reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From customer, orders, lineitem, supplier, nation, region Where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '1' year Group By n_name Order by revenue desc Limit 100; "
+reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From customer, orders, lineitem, supplier, nation, region Where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '1' year Group By n_name Order by revenue desc Limit 100; "
 # Q4
 # reveal_globals.query1 = " Select o_orderdate, o_orderpriority, count(*) as order_count From orders Where o_orderdate >= date '1997-07-01' and o_orderdate < date '1997-07-01' + interval '3' month Group By o_orderkey, o_orderdate, o_orderpriority Order by o_orderpriority Limit 10; "
 # Q10
@@ -907,6 +910,47 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 
 # reveal_globals.query1="select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name limit 100;"
 # reveal_globals.query1= "  select * from lineitem where l_partkey =67310 and l_orderkey =  5649094;"
+
+
+###################
+# OUTER- JOIN TEST QUERIES
+# query="select * from partsupp left outer join part on ps_partkey=p_partkey;"
+# query="select * from partsupp left outer join part on ps_partkey=p_partkey where p_size>20 and ps_availqty>5000;"
+# reveal_globals.query1 ="select * from partsupp left outer join part on ps_partkey=p_partkey where ps_availqty>5000 limit 10;"
+# query = "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part left outer join supplier , partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name, p_partkey limit 100;"
+# query="select * from supplier left outer join nation on s_nationkey=n_nationkey;"
+# query="select s_name, s_nationkey, n_nationkey, n_regionkey, r_regionkey from supplier left outer join nation on s_nationkey=n_nationkey left outer join region on n_regionkey=r_regionkey where s_acctbal>3000 order by s_name limit 10;"
+# query="Select p_name , ps_availqty, s_phone from partsupp LEFT OUTER JOIN supplier ON ps_suppkey = s_suppkey LEFT OUTER JOIN part ON ps_partkey=p_partkey where ps_availqty>3000;"
+# query="Select p_name , ps_availqty, s_phone from part LEFT OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where ps_availqty>3000;"
+# query="Select p_name , ps_availqty, s_phone from part LEFT OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where p_retailprice>1000;"
+# query="Select p_name , ps_availqty, s_phone from partsupp LEFT OUTER JOIN part ON ps_partkey = p_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where ps_supplycost>400;"
+# query="select s_name, s_nationkey, n_nationkey, n_regionkey, r_regionkey from supplier left outer join nation on s_nationkey=n_nationkey left outer join region on n_regionkey=r_regionkey where s_acctbal>3000 order by s_name limit 10"
+
+# query="select * from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey "
+
+# query="Select p_name , ps_availqty, s_phone from part FULL OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey"
+# query="select p_partkey, ps_partkey, l_partkey from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey"
+# query="select * from part full outer join partsupp on p_partkey=ps_partkey"
+# query="select * from part inner join partsupp on p_partkey=ps_partkey "
+# query="select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey"
+# query="select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey right outer join lineitem on ps_suppkey=l_suppkey"
+# query="select * from part left outer join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey left outer join lineitem on ps_suppkey=l_suppkey"
+# query="Select  ps_suppkey, p_partkey,ps_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey "
+# query="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20"
+
+#ON & filter predicate
+# reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part right outer join partsupp on p_partkey= ps_partkey and p_size>20  left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 ;"
+# query="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20"
+# query="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey   from part left outer join partsupp on p_partkey=ps_partkey left outer join lineitem on ps_suppkey=l_suppkey"
+# query="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part right outer join partsupp on p_partkey=ps_partkey inner join lineitem on ps_suppkey=l_suppkey"
+#7 jan
+# query="select p_partkey, ps_partkey, ps_suppkey, s_suppkey from part left outer join partsupp on p_partkey = ps_partkey right outer join supplier on ps_suppkey= s_suppkey"
+# query="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey full outer join lineitem on ps_suppkey=l_suppkey"
+# query="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 full outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10"
+
+
+
+
 
 reveal_vp_start_gui()
 

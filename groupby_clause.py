@@ -151,10 +151,12 @@ def getGroupByAttributes():
 			new_result = executable.getExecOutput()
 			reveal_globals.local_other_info_dict['Result Cardinality'] = str(len(new_result) - 1)+' rows'
 			reveal_globals.global_result_dict['group by_' + attrib + '_D_gen1'] = copy.deepcopy(new_result)
+			first = 0
+			
 			if len(new_result) <= 1:
 				reveal_globals.error="Unmasque Error :\n Some error in generating new database. Result is empty. Can not identify Grouping"
 				print('some error in generating new database. Result is empty. Can not identify Grouping')
-				return [], False
+			# 	return [], False
 			if len(new_result) == 3:
 				#3 is WITH HEADER so it is checking for two rows
 				GroupByAttrib.append(attrib)
@@ -165,4 +167,40 @@ def getGroupByAttributes():
 				groupbyflag = True
 				reveal_globals.local_other_info_dict['Conclusion'] = ' No Grouping on attribute ' + attrib
 			reveal_globals.global_other_info_dict['group by_' +attrib+'_D_gen1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
+						#extra nullity check sneha
+			# first = 0
+			# flag = 0
+			# len_res=0
+			# for tup in new_result:
+			# 	chk = 0
+			# 	if first == 0:
+			# 		first = 1
+			# 		continue
+			# 	for val in tup:
+			# 		if val == 'None':
+			# 			chk = 1
+			# 			break
+			# 	if chk == 0:
+			# 		flag = 1
+			# 		len_res+=1
+			# 		break
+
+			# #sneha
+			# if flag == 0:  #if len(new_result) <= 1:
+			# 	reveal_globals.error="Unmasque Error :\n Some error in generating new database. Result is empty. Can not identify Grouping"
+			# 	print('some error in generating new database. Result is empty. Can not identify Grouping')
+			# 	return [], False
+			# if len_res==2 :#if len(new_result) == 3:
+			# 	#3 is WITH HEADER so it is checking for two rows
+			# 	GroupByAttrib.append(attrib)
+			# 	reveal_globals.local_other_info_dict['Conclusion'] = 'Grouping on attribute ' + attrib
+			# 	groupbyflag = True
+			# if len_res==1 :#if len(new_result) == 2:
+			# 	#It indicates groupby on at least one attribute
+			# 	groupbyflag = True
+			# 	reveal_globals.local_other_info_dict['Conclusion'] = ' No Grouping on attribute ' + attrib
+			# reveal_globals.global_other_info_dict['group by_' +attrib+'_D_gen1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
 	return GroupByAttrib, groupbyflag
+
+
+# for groupyby clause extractor we donoy need ectra nullity check
