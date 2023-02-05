@@ -33,7 +33,7 @@ class CandidateAttribute():
 import time
 def checkOrdering(obj, result):
 	print("inside -- orderby_clause.checkOrdering")
-	print(len(result),result)
+	# print(len(result),result)
 	# time.sleep(30)
 	try:
 		i=2
@@ -258,5 +258,5 @@ def get_orderby_attributes():
 	if reveal_globals.global_input_type == "1":
 		reveal_globals.global_attrib_dict['order by'].sort()
 	#####################
-	print(orderby_list)
+	# print(orderby_list)
 	return orderby_list
