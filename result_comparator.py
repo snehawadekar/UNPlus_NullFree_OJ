@@ -1,5 +1,6 @@
 import reveal_globals
 import sys
+#needs to be extended for outer joins
 
 # HAsh based result comparator
 def match(Q_E, res):
@@ -36,6 +37,9 @@ def match(Q_E, res):
                 continue
             temp = []
             for val in row:
+                # if val== None:
+                #     temp.append('Null')
+                # else:
                 temp.append(str(val))
             result.append(tuple(temp))
     

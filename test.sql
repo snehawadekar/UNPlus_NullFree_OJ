@@ -1,3 +1,8 @@
+-- delete from lineitem where l_suppkey > 100;
+delete from part where p_partkey >100;
+delete from partsupp where ps_partkey >100;
+
+-- \i C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNPlus_NullFree_OJ/test.sql
 --  \i C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNMASQUE-Web_backup-before-aoa_copy/test.sql
 
 -- Q-5
@@ -25,4 +30,6 @@
 -- Select c_name,sum(l_extendedprice) as revenue, c_acctbal, n_name, c_address, c_phone, c_comment From customer, orders, lineitem, nation Where c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '3' month and l_returnflag = 'R' and c_nationkey = n_nationkey Group By c_name, c_acctbal, c_phone, n_name, c_address, c_comment Order by revenue desc Limit 20;
 
 -- Q16
-Select p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From partsupp, part Where p_partkey = ps_partkey and p_brand = 'Brand#45' and p_type Like 'SMALL PLATED%' and p_size >= 4 Group By p_brand, p_type, p_size Order by supplier_cnt desc, p_brand, p_type, p_size;
+-- Select p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From partsupp, part Where p_partkey = ps_partkey and p_brand = 'Brand#45' and p_type Like 'SMALL PLATED%' and p_size >= 4 Group By p_brand, p_type, p_size Order by supplier_cnt desc, p_brand, p_type, p_size;
+
+Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 full outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10;

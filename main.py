@@ -44,7 +44,7 @@ import os
 
 
 import reveal_globals
-# import reveal_op
+import outer_join
 import time
 
 # import reveal_db
@@ -375,40 +375,56 @@ def func_join_start():
 				reveal_globals.global_where_op = reveal_globals.global_where_op + ' and ' + elt[0] + ' = ' + elt[i]
 	func_join_Complete()
 	
-def func_assemble_Complete():
-    print("inside:   reveal_proc_support.func_assemble_Complete")
+# def func_assemble_Complete():
+#     print("inside:   reveal_proc_support.func_assemble_Complete")
+#     reveal_globals.local_end_time = time.time()
+#     reveal_globals.global_assemble_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+#     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+#     reveal_globals.global_select_op = reveal_globals.global_select_op.replace('as l_orderkey', '')	
+#     # print("end")
+#     # print("$$$$****$$$$")
+#     error_handler.restore_database_instance()
+
+
+
+# def func_assemble_start():
+#     print("inside:   reveal_proc_support.func_assemble_start")
+#     output=""
+#     reveal_globals.local_start_time = time.time()
+#     if reveal_globals.global_db_engine == 'PostgreSQL':
+#         output = "Select " +reveal_globals.global_select_op + "\n" + "From "  +reveal_globals.global_from_op
+#     if reveal_globals.global_where_op != '':
+#         output = output + "\n" + "Where " + reveal_globals.global_where_op
+#     if reveal_globals.global_groupby_op != '':
+#         output = output + "\n" + "Group By " + reveal_globals.global_groupby_op
+#     if reveal_globals.global_orderby_op != '':
+#         output = output + "\n" + "Order By " + reveal_globals.global_orderby_op
+#     if reveal_globals.global_limit_op  != '':
+#         output = output + "\n" + "Limit " + reveal_globals.global_limit_op 
+#     output = output + ";"
+#     # output = "Select " + reveal_globals.global_select_op + "\n" + "From "  + reveal_globals.global_from_op + "\n" + "Where " + reveal_globals.global_where_op + "\n" + "Group By "+ reveal_globals.global_groupby_op + "\n" + "Order By " + reveal_globals.global_orderby_op + "\n" + "Limit " + reveal_globals.global_limit_op + ";"
+#     print('EXTRACTED OUTPUT QUERY :')
+#     reveal_globals.output1=output
+#     print(reveal_globals.output1)
+#     func_assemble_Complete()  #changes made here0
+
+
+def func_outerjoin_start():
+    print("inside:   reveal_proc_support.func_limit_start")
+    reveal_globals.local_start_time = time.time()
+    outer_join.fn()
+    func_outerjoin_Complete()
+    
+def func_outerjoin_Complete():
+    print("inside:   reveal_proc_support.func_limit_Complete")
     reveal_globals.local_end_time = time.time()
-    reveal_globals.global_assemble_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    reveal_globals.global_select_op = reveal_globals.global_select_op.replace('as l_orderkey', '')	
-    # print("end")
-    # print("$$$$****$$$$")
-    #time.sleep(50)
-    # update_load()
+    # func_assemble_start()
     error_handler.restore_database_instance()
 
+    
 
-
-def func_assemble_start():
-    print("inside:   reveal_proc_support.func_assemble_start")
-    output=""
-    reveal_globals.local_start_time = time.time()
-    if reveal_globals.global_db_engine == 'PostgreSQL':
-        output = "Select " +reveal_globals.global_select_op + "\n" + "From "  +reveal_globals.global_from_op
-    if reveal_globals.global_where_op != '':
-        output = output + "\n" + "Where " + reveal_globals.global_where_op
-    if reveal_globals.global_groupby_op != '':
-        output = output + "\n" + "Group By " + reveal_globals.global_groupby_op
-    if reveal_globals.global_orderby_op != '':
-        output = output + "\n" + "Order By " + reveal_globals.global_orderby_op
-    if reveal_globals.global_limit_op  != '':
-        output = output + "\n" + "Limit " + reveal_globals.global_limit_op 
-    output = output + ";"
-    # output = "Select " + reveal_globals.global_select_op + "\n" + "From "  + reveal_globals.global_from_op + "\n" + "Where " + reveal_globals.global_where_op + "\n" + "Group By "+ reveal_globals.global_groupby_op + "\n" + "Order By " + reveal_globals.global_orderby_op + "\n" + "Limit " + reveal_globals.global_limit_op + ";"
-    print('EXTRACTED OUTPUT QUERY :')
-    reveal_globals.output1=output
-    print(reveal_globals.output1)
-    func_assemble_Complete()  #changes made here0
 
 #### start----  additions for nep
 # def extractedQ():
@@ -452,8 +468,8 @@ def func_limit_Complete():
     reveal_globals.local_end_time = time.time()
     reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-    func_assemble_start()
-
+    # func_assemble_start()
+    func_outerjoin_start()
     # update_load()
     # func_nep_start()
 
@@ -947,7 +963,7 @@ reveal_globals.minimizer="view_based"
 # reveal_globals.query1="select * from part inner join partsupp on p_partkey=ps_partkey "
 # reveal_globals.query1="select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey"
 # reveal_globals.query1="select * from part inner join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey right outer join lineitem on ps_suppkey=l_suppkey"
-# reveal_globals.query1="select * from part left outer join partsupp on p_partkey=ps_partkey LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey left outer join lineitem on ps_suppkey=l_suppkey"
+# reveal_globals.query1="select * from partsupp LEFT OUTER JOIN supplier on ps_suppkey=s_suppkey left outer join lineitem on ps_suppkey=l_suppkey"
 # reveal_globals.query1="Select  ps_suppkey, p_partkey,ps_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey "
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20"
 

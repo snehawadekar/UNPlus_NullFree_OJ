@@ -315,17 +315,17 @@ def getProjectedAttributes():
                 newfilterList.remove(val)
             curr_attrib = []
     #HARDCODING FOR PROJECTION FOR NOW
-    reveal_globals.local_other_info_dict = {}
-    reveal_globals.local_other_info_dict['Current Mutation'] = 'No Mutation'
-    reveal_globals.local_other_info_dict[u'Candidate List \u2014 revenue'] = "[l_extendedprice]"
-    reveal_globals.local_other_info_dict[u'Candidate List \u2014 o_orderdate'] = "[o_orderdate]"
-    reveal_globals.local_other_info_dict[u'Candidate List \u2014 o_shippriority'] = "[o_shippriority]"
-    reveal_globals.local_other_info_dict[u'Candidate List \u2014 l_orderkey'] = "[l_orderkey, o_orderkey]"
-    reveal_globals.local_other_info_dict['Conclusion'] = 'No Pruning Required'
-    reveal_globals.global_other_info_dict['projection_D_mut1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
+    # reveal_globals.local_other_info_dict = {}
+    # reveal_globals.local_other_info_dict['Current Mutation'] = 'No Mutation'
+    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 revenue'] = "[l_extendedprice]"
+    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 o_orderdate'] = "[o_orderdate]"
+    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 o_shippriority'] = "[o_shippriority]"
+    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 l_orderkey'] = "[l_orderkey, o_orderkey]"
+    # reveal_globals.local_other_info_dict['Conclusion'] = 'No Pruning Required'
+    # reveal_globals.global_other_info_dict['projection_D_mut1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
     #HARDCODIG FOR DEMO (TO BE REMOVED)
-    for i in range(len(projectedAttrib)):
-        if projectedAttrib[i].strip() == 'o_orderkey':
-            projectedAttrib[i] = 'l_orderkey'
+    # for i in range(len(projectedAttrib)):
+    #     if projectedAttrib[i].strip() == 'o_orderkey':
+    #         projectedAttrib[i] = 'l_orderkey'
     #####################################
     return projectedAttrib, projection_names
