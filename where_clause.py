@@ -1046,17 +1046,17 @@ def get_filter_predicates():
 							val2 = getIntFilterValue(tabname, attrib, min_val_domain, math.floor(float(d_plus_value[attrib])), '>=')
 							filterAttribs.append((tabname, attrib, 'range', float(val2), float(val1)))
 					elif(flag_min == True and flag_max == False):
-						print('identifying value for Int filter attribute', attrib)
+						print('identifying value for float filter attribute', attrib)
 						val = getIntFilterValue(tabname, attrib, math.ceil(float(d_plus_value[attrib])) - 5, max_val_domain, '<=')
 						val = float(val)
 						val1 = getFloatFilterValue(tabname,attrib,val  ,val + 0.99,'<=')
 						filterAttribs.append((tabname, attrib, '<=', float(min_val_domain), float(round(val1,2))))
 					elif(flag_min == False and flag_max == True):
-						print('identifying value for Int filter attribute', attrib)
+						print('identifying value for float filter attribute', attrib)
 						val = getIntFilterValue(tabname, attrib, min_val_domain, math.floor(float(d_plus_value[attrib]) + 5), '>=')
 						val = float(val)
-						val1 = getFloatFilterValue(tabname, attrib, val - 1 , val, '>=')
-						filterAttribs.append((tabname, attrib, '>=', float(round(val1,2)), float(max_val_domain)))
+						val1 = getFloatFilterValue(tabname, attrib, val -1 , val , '>=')
+						filterAttribs.append((tabname, attrib, '>=', float(round(val1,2)) + 0.01, float(max_val_domain)))
 				reveal_globals.global_instance_dict['filter_'+attrib] = copy.deepcopy(reveal_globals.local_instance_list)
 	print("filterAttribs",filterAttribs)
 	return filterAttribs 

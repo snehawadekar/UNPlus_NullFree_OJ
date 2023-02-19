@@ -22,8 +22,6 @@ def getconn() :
 
 def establishConnection():
     print("inside------reveal_support.establishConnection")
-    # reveal_globals.global_connection_string = str('0.0.0.0,5432,' + reveal_globals.global_db_instance + ',,,')
-    # arg = reveal_globals.global_connection_string.split(',')
     reveal_globals.global_db_engine = 'PostgreSQL'
     conn=getconn()
     reveal_globals.global_conn = conn
@@ -89,7 +87,7 @@ def getCoreRelations(method = 'rname'):
 				
 				cur = reveal_globals.global_conn.cursor()
 				if reveal_globals.global_db_engine != 'Microsoft SQL Server':
-					cur.execute('Create table ' + tabname + ' (like temp including constraints including indexes);')
+					cur.execute('Create table ' + tabname + ' (like temp);')
 				cur.close()
 				
 				# if not(check_lenRes()):

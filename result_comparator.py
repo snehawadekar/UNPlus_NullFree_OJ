@@ -28,19 +28,19 @@ def match(Q_E, res):
     if res is not None:
         for row in res:
             #CHECK IF THE WHOLE ROW IN NONE (SPJA Case)
-            nullrow = True
-            for val in row:
-                if val != None:
-                    nullrow = False
-                    break
-            if nullrow == True:
-                continue
+            # nullrow = True
+            # for val in row:
+            #     if val != None:
+            #         nullrow = False
+            #         break
+            # if nullrow == True:
+            #     continue
             temp = []
             for val in row:
-                # if val== None:
-                #     temp.append('Null')
-                # else:
-                temp.append(str(val))
+                if val== None:
+                    temp.append('Null')
+                else:
+                    temp.append(str(val))
             result.append(tuple(temp))
     
     cur = reveal_globals.global_conn.cursor()

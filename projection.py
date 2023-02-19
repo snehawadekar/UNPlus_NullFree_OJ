@@ -126,6 +126,8 @@ def getProjectedAttributes():
             new_val = val
         if new_val in value_used and not (any(value_used[value_used.index(new_val) - 1] in i for i in reveal_globals.global_filter_predicates)):
             projectedAttrib1.append(value_used[value_used.index(new_val) - 1])
+            value_used.remove(value_used[value_used.index(new_val) - 1])
+            value_used.remove(value_used[value_used.index(new_val)])
         else:
             projectedAttrib1.append('')
 
@@ -198,7 +200,7 @@ def getProjectedAttributes():
                 curr_value = int(curr_attrib[0][3])
             value_used = [curr_attrib[0][1], curr_value]
             for entry in reveal_globals.global_filter_predicates:
-                if entry != curr_attrib[0] and ('int' in attrib_types_dict[(entry[0], entry[1])] or 'numeric' in attrib_types_dict[(entry[0], entry[1])]):
+                if entry != curr_attrib[0] and ('int' in attrib_types_dict[(entry[0], entry[1])] ):
                     #indicates integer type attribute
                     value_used.append(entry[1])
                     value_used.append(0)
@@ -206,6 +208,13 @@ def getProjectedAttributes():
                         value_used[-1] = i
                         if i != curr_value:
                             break
+                    if value_used[-1] == curr_value:
+                        curr_attrib.append(entry)
+                elif entry != curr_attrib[0] and 'numeric' in attrib_types_dict[(entry[0], entry[1])]:
+                    value_used.append(entry[1])
+                    value_used.append(0)
+                    value_used[-1] = entry[3]
+                     
                     if value_used[-1] == curr_value:
                         curr_attrib.append(entry)
                 elif entry != curr_attrib[0] and 'date' in attrib_types_dict[(entry[0], entry[1])]:
@@ -314,18 +323,5 @@ def getProjectedAttributes():
             for val in curr_attrib:
                 newfilterList.remove(val)
             curr_attrib = []
-    #HARDCODING FOR PROJECTION FOR NOW
-    # reveal_globals.local_other_info_dict = {}
-    # reveal_globals.local_other_info_dict['Current Mutation'] = 'No Mutation'
-    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 revenue'] = "[l_extendedprice]"
-    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 o_orderdate'] = "[o_orderdate]"
-    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 o_shippriority'] = "[o_shippriority]"
-    # reveal_globals.local_other_info_dict[u'Candidate List \u2014 l_orderkey'] = "[l_orderkey, o_orderkey]"
-    # reveal_globals.local_other_info_dict['Conclusion'] = 'No Pruning Required'
-    # reveal_globals.global_other_info_dict['projection_D_mut1'] = copy.deepcopy(reveal_globals.local_other_info_dict)
-    #HARDCODIG FOR DEMO (TO BE REMOVED)
-    # for i in range(len(projectedAttrib)):
-    #     if projectedAttrib[i].strip() == 'o_orderkey':
-    #         projectedAttrib[i] = 'l_orderkey'
-    #####################################
+
     return projectedAttrib, projection_names

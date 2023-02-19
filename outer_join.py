@@ -14,7 +14,6 @@ def fn():
 
 
     #part of ---  def possible_edge_sequence():
-    print("hello")
     new_join_graph=[] 
     list_of_tables=[]
     for edge in reveal_globals.global_join_graph:
@@ -27,11 +26,11 @@ def fn():
                 cur.execute("SELECT COLUMN_NAME ,TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME like '"+ str(edge[i])+"' ;")
                 tabname=cur.fetchone()
                 cur.close()
-                tn=tabname[1]
-                print(tn) #####
+        
                 if tn not in list_of_tables:
-                    list_of_tables.append(tn)
+                    list_of_tables.append(tabname[1])
                 print(edge[i],tabname)
+                
                 temp.append(tabname)
                 cur = reveal_globals.global_conn.cursor()
                 cur.execute("SELECT COLUMN_NAME ,TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME like '"+ str(edge[i+1])+"' ;")
@@ -58,6 +57,7 @@ def fn():
                 if tn not in list_of_tables:
                     list_of_tables.append(tn)
             new_join_graph.append(temp)
+            
     print(list_of_tables)   
     print(new_join_graph)
 
@@ -100,7 +100,7 @@ def fn():
         cur.execute("SELECT COLUMN_NAME ,TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME like '"+ str(k)+"' ;")
         tabname=cur.fetchone()
         cur.close()
-        if tabname not in table_attr_dict.keys():
+        if tabname[1] not in table_attr_dict.keys():
             print(k,tabname[1])
             table_attr_dict[tabname[1]]=k
     print(table_attr_dict)
@@ -111,21 +111,19 @@ def fn():
     for tabname in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute('alter table ' + tabname + ' rename to ' + tabname + '_restore;')
-        # cur.execute('create table ' + tabname + ' as select * from '  + tabname + '_restore;')
-        # cur.execute("Truncate Table " + tabname + ";")
-        cur.close()
-        cur = reveal_globals.global_conn.cursor()
+        # cur.close()
+        # cur = reveal_globals.global_conn.cursor()
         cur.execute('create table ' + tabname + ' as select * from '  + tabname + '4;')   
         cur.close()
 
    
 
-    cur = reveal_globals.global_conn.cursor()
-    query=reveal_globals.query1
-    cur.execute(query)
-    res_hq=cur.fetchall()
-    print(res_hq)
-    cur.close()
+    # cur = reveal_globals.global_conn.cursor()
+    # query=reveal_globals.query1
+    # cur.execute(query)
+    # res_hq=cur.fetchall()
+    # print(res_hq)
+    # cur.close()
 
 
     importance_dict={}
@@ -183,9 +181,8 @@ def fn():
         # for e in new_join_graph:
         importance_dict[tuple(edge)]={}
         table1=edge[0][1] #first table
-        key1=edge[0][0]
         table2=edge[1][1]
-        key2=edge[1][0]
+        
         p_att_table1= None
         p_att_table2= None
         att1=table_attr_dict[table1]
@@ -226,7 +223,7 @@ def fn():
     reveal_globals.importance_dict=importance_dict
     # final_edge_seq = possible_edge_sequence()
     set_possible_queries = FormulateQueries(final_edge_seq)
-    print("here")
+    # print("here")
 
 
     #eliminate semanticamy non-equivalent querie from set_possible_queries
@@ -237,13 +234,13 @@ def fn():
     cur.execute(query)
     res_HQ=cur.fetchall()    
     cur.close()
-    print(res_HQ)
+    # print(res_HQ)
     for poss_q in set_possible_queries:
         cur = reveal_globals.global_conn.cursor()
         query=poss_q
         cur.execute(query)
         res_poss_q=cur.fetchall()
-        print(res_poss_q)
+        # print(res_poss_q)
         cur.close()
 
         if len(res_HQ) != len(res_poss_q):
@@ -273,6 +270,8 @@ def fn():
 
     return 
 
+
+
     # once dict is made compare values to null or not null 
     # and prepare importance_dict 
 def FormulateQueries(final_edge_seq):
@@ -285,7 +284,6 @@ def FormulateQueries(final_edge_seq):
         print("select " + fp[1] + " From " + fp[0] +";")
         cur.execute("select " + fp[1] + " From " + fp[0] +";")
         restore_value=cur.fetchall()
-
         cur.close()
 
         cur = reveal_globals.global_conn.cursor()

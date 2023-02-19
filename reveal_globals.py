@@ -100,6 +100,7 @@ global_index_dict = {}
 global_AoA = 0
 global_proj = []
 
+global_core_sizes ={}
 global_core_relations = []
 global_join_graph = []
 global_filter_predicates = []
@@ -133,3 +134,5 @@ global_join_instance_dict = {}
 global_component_dict = {}
 local_start_time = ''
 local_end_time = ''
+
+outer_join_flag = False
