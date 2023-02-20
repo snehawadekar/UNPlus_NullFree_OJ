@@ -55,6 +55,7 @@ import copy_min
 import nep
 import aoa_pred
 import cs2_impr
+import cs2trial
 import psycopg2
 import os.path
 import check_oj
@@ -933,7 +934,7 @@ reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From cu
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part right outer join partsupp on p_partkey= ps_partkey and p_size>20  left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 ;"
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20"
 # in below query projection clause not able to differentiate between ps_suppkey and l_suppkey
-reveal_globals.query1="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey   from part left outer join partsupp on p_partkey=ps_partkey left outer join lineitem on ps_suppkey=l_suppkey"
+# reveal_globals.query1="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey   from part left outer join partsupp on p_partkey=ps_partkey left outer join lineitem on ps_suppkey=l_suppkey"
 # below modified version works fine
 # reveal_globals.query1="Select ps_suppkey, l_shipdate , p_partkey,ps_availqty  from part right outer join partsupp on p_partkey=ps_partkey inner join lineitem on ps_suppkey=l_suppkey"
 

@@ -38,13 +38,13 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 	reveal_globals.local_other_info_dict = {}
 	#Perform sampling
 	#print(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter,"++++SAMPLING++++++++")
-	#core_sizes = sample_Database_Instance(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter)
-	print("sneha here")
+	# core_sizes = sample_Database_Instance(core_relations, reveal_globals.global_sample_size_percent, reveal_globals.global_sample_threshold, reveal_globals.global_max_sample_iter)
+	# print("sneha here")
 	# exit(0)
 	
 	core_sizes = getCoreSizes(core_relations)
 	start_time=time.time()
-	print("YES1")
+	# print("YES1")
 
 		
   
@@ -66,7 +66,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 		min_ctid =cur.fetchone()
 		cur.close()
 		min_ctid = min_ctid[0]
-		print(min_ctid)
+		# print(min_ctid)
 		min_ctid2 = min_ctid.split(",")
 		start_page = int(min_ctid2[0][1:])
   
@@ -82,7 +82,7 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
   
 		start_ctid = min_ctid
 		end_ctid = max_ctid
-		print("start_page= ",start_page, "end page= ",end_page )
+		# print("start_page= ",start_page, "end page= ",end_page )
 		while (start_page < end_page-1):
 			mid_page=int((start_page + end_page)/2)
 			mid_ctid1 = "(" + str(mid_page) + ",1)"

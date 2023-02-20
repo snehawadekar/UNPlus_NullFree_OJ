@@ -136,3 +136,4 @@ local_start_time = ''
 local_end_time = ''
 
 outer_join_flag = False
+seed_sample_size_per =1
