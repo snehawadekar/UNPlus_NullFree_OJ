@@ -4,7 +4,7 @@ import time
 import  copy
 import psycopg2
 import psycopg2.extras
-import error_handler
+import check_nullfree
 
 def getCoreSizes_cs(core_relations):
     core_sizes = {}
@@ -120,8 +120,10 @@ def correlated_sampling():
         res = cur.fetchone()
         print(table, res)
         
-    new_result= executable.getExecOutput()
-    if len(new_result)<=1:
+    #check for null free rows and not just nonempty results 
+    # new_result= executable.getExecOutput()
+    
+    if check_nullfree.getExecOutput() == False :
         print('sampling failed in iteraation')
         cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         for table in reveal_globals.global_core_relations:
@@ -134,13 +136,3 @@ def correlated_sampling():
         return True
     
     
-
-    # count rows after sampling
-    
-
-
-   
-
-	
-
-

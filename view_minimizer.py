@@ -1,18 +1,8 @@
-#working correct last update :dec 10,2022
-
 import check_nullfree
 import os
-import sys
-import csv
 import copy
-import math
 import executable
-sys.path.append('../') 
 import reveal_globals
-import psycopg2
-
-import psycopg2.extras
-import operator
 import time
 import pandas as pd
 
@@ -124,8 +114,8 @@ def reduce_Database_Instance(core_relations, method = 'binary partition', max_no
 			start_page = int(start_ctid2[0][1:])
 			end_ctid2 = end_ctid.split(",")
 			end_page = int(end_ctid2[0][1:])
-			print("start_page= ",start_page, "end page= ",end_page )
-			print(start_ctid, end_ctid)
+			# print("start_page= ",start_page, "end page= ",end_page )
+			# print(start_ctid, end_ctid)
 		cur = reveal_globals.global_conn.cursor()
   
 		# cur.execute('drop view '+ tabname + ';')

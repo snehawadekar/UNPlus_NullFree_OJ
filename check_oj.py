@@ -10,10 +10,9 @@ def check():
         res = cur.fetchall() #fetchone always return a tuple whereas fetchall return list
         cur.close()
         for row in res:
-            for val in row:
-                if val == None:
-                    reveal_globals.outer_join_flag = True
-                    return 
+            if None in row:
+                reveal_globals.outer_join_flag = True
+                return 
             
        
     except Exception as error:

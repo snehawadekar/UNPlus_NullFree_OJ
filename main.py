@@ -897,6 +897,8 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 
 
 ###################
+# to test OJ queries manipulate database so that it gives atleast a null value for a projected attribute
+###############
 # OUTER- JOIN TEST QUERIES
 # reveal_globals.query1="select * from partsupp left outer join part on ps_partkey=p_partkey;"
 # reveal_globals.query1="select * from partsupp left outer join part on ps_partkey=p_partkey where p_size>20 and ps_availqty>5000;"
@@ -913,7 +915,6 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 
 # results same
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from part FULL OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey"
-
 # reveal_globals.query1="select p_partkey, ps_partkey, l_partkey from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey"
 # results same
 # reveal_globals.query1="select * from part full outer join partsupp on p_partkey=ps_partkey"
@@ -934,7 +935,7 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part right outer join partsupp on p_partkey= ps_partkey and p_size>20  left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 ;"
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20"
 # in below query projection clause not able to differentiate between ps_suppkey and l_suppkey
-# reveal_globals.query1="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey   from part left outer join partsupp on p_partkey=ps_partkey left outer join lineitem on ps_suppkey=l_suppkey"
+# reveal_globals.query1=" Select ps_suppkey, l_suppkey, p_partkey, ps_partkey from part left outer join partsupp on p_partkey=ps_partkey left outer join lineitem on ps_suppkey=l_suppkey"
 # below modified version works fine
 # reveal_globals.query1="Select ps_suppkey, l_shipdate , p_partkey,ps_availqty  from part right outer join partsupp on p_partkey=ps_partkey inner join lineitem on ps_suppkey=l_suppkey"
 
