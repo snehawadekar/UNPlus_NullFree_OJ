@@ -1,9 +1,11 @@
 import copy
-
 import reveal_globals
 
 def fn():
 
+
+    # after coming from nepextractor you maynot need this 
+    
     for tabname in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute('alter table ' + tabname + '_restore rename to ' + tabname + '2;')
@@ -111,8 +113,6 @@ def fn():
     for tabname in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute('alter table ' + tabname + ' rename to ' + tabname + '_restore;')
-        # cur.close()
-        # cur = reveal_globals.global_conn.cursor()
         cur.execute('create table ' + tabname + ' as select * from '  + tabname + '4;')   
         cur.close()
 
@@ -227,6 +227,8 @@ def fn():
 
 
     #eliminate semanticamy non-equivalent querie from set_possible_queries
+    
+    #this code needs to be finished (27 feb)
     sem_eq_queries=[]
 
     cur = reveal_globals.global_conn.cursor()
@@ -404,7 +406,7 @@ def FormulateQueries(final_edge_seq):
                         else:
                             predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
                         query +=" and "+ predicate
-                        fp_on.remove(fp)
+                        # fp_on.remove(fp)
 
             else:
                 query+= ' ' + type_of_join + str(edge[1][1]) +' ON '+ str( edge[0][0] ) +' = '+str( edge[1][0] ) 
@@ -430,7 +432,7 @@ def FormulateQueries(final_edge_seq):
                         else:
                             predicate = elt[1] + ' ' + str(elt[2]) + ' ' + str(elt[4])
                         query +=" and "+ predicate
-                        fp_on.remove(fp)
+                        # fp_on.remove(fp)
         # add other components of the query
         # + where clause
         # + group by, order by, limit

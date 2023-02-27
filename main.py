@@ -19,7 +19,6 @@ from flask import *
 import time
 from flask import Flask, render_template, abort
 # from turbo_flask import Turbo
-import random
 '''
 app = Flask(__name__)
 turbo = Turbo(app)
@@ -28,15 +27,13 @@ turbo = Turbo(app)
 app.secret_key="dsl@iisc"
 status=0
 '''
-import sys
 import error_handler
 import platform
-import threading
 import reveal_globals
+import dbcon
 import outer_join
 import time
 import copy
-import os
 import from_clause
 import db_minimizer
 import error_handler
@@ -57,7 +54,6 @@ import aoa_pred
 import cs2_impr
 import cs2trial
 import psycopg2
-import os.path
 import check_oj
 
 def extracted_part_info():
@@ -85,19 +81,13 @@ def runreveal(*args):
     if reveal_globals.global_input_type != "1":
         reveal_globals.global_input_type = "0"
     if reveal_globals.global_conn == None:
-        if(not establishConnection()):
+        if(not dbcon.establishConnection()):
             return
     #CHECK FOR STORED PROCEDURE EXISTENCE AND ERROR HERE BY RUNNING ON SOME SAMPLE DATABASE
     #CLOSE THIS SCREEN AND CALL THE NEXT SCREEN
     reveal_globals.global_proc_prev_screen = "inp"
     extractionStart()
  
-def getconn() :
-    #change port 
-    conn = psycopg2.connect(
-   database=reveal_globals.database_in_use, user='postgres', password='root', host='localhost', port= '5432'
-)
-    return conn
 
 '''
 def getconn_gcloud() :
@@ -111,15 +101,7 @@ def getconn_gcloud() :
     return conn
 '''
 
-def establishConnection():
-    print("inside------reveal_support.establishConnection")
-    # reveal_globals.global_connection_string = str('0.0.0.0,5432,' + reveal_globals.global_db_instance + ',,,')
-    # arg = reveal_globals.global_connection_string.split(',')
-    reveal_globals.global_db_engine = 'PostgreSQL'
-    conn=getconn()
-    reveal_globals.global_conn = conn
-    print("connected...")
-    return True
+
    
 def reveal_support_init():
     print("inside------reveal_support.init")   
@@ -244,7 +226,7 @@ def func_min_start():
     # cur.close()
     # for i in temp:
     #     reveal_globals.global_all_relations.append(i[0])
-    establishConnection()
+    dbcon.establishConnection()
     for tabname in reveal_globals.global_all_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute("DROP TABLE IF EXISTS " + tabname + "_restore;")
@@ -288,10 +270,6 @@ def func_min_start():
         #     func_min_Complete()
         # else:
         #     reveal_globals.global_test_option = False
-
-
-
-
         # if (view_minimizer.reduce_Database_Instance(reveal_globals.global_core_relations)):  #view based minimizer
         #     func_min_Complete()
         # else:
@@ -313,7 +291,7 @@ def func_min_Complete():
     # update_load()
      #printing minimized db results
     if reveal_globals.global_conn == None:
-        establishConnection()
+        dbcon.establishConnection()
     cur=reveal_globals.global_conn.cursor()
     query=reveal_globals.query1
     cur.execute(query)
@@ -380,6 +358,45 @@ def func_assemble_start():
     func_assemble_Complete()  #changes made here0
 
 
+
+#### start----  additions for nep
+def extractedQ():
+	query = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
+	if reveal_globals.global_where_op.strip() != '':
+		query = query + "\n" + "Where " + reveal_globals.global_where_op
+	if reveal_globals.global_groupby_op.strip() != '':
+		query = query + "\n" + "Group By " + reveal_globals.global_groupby_op
+	if reveal_globals.global_orderby_op.strip() != '':
+		query = query + "\n" + "Order By " + reveal_globals.global_orderby_op
+	if reveal_globals.global_limit_op.strip() != '':
+		query = query + "\n" + "Limit " + reveal_globals.global_limit_op 
+	query = query + ";"
+	return query	
+
+def func_nep_start():
+    Q_E = extractedQ()
+    reveal_globals.local_start_time = time.time()
+	
+	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
+    #sneha
+    # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
+    Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
+    print("Query with NEP", Q_E_)
+    func_nep_Complete()
+
+def func_nep_Complete():
+    reveal_globals.local_end_time = time.time()
+    reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
+    reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
+    # func_assemble_start()
+    if reveal_globals.outer_join_flag == True:
+        func_outerjoin_start()
+    else:
+        func_assemble_start()
+
+##### end --- additions for nep
+
+
 def func_outerjoin_start():
     print("inside:   reveal_proc_support.func_limit_start")
     reveal_globals.local_start_time = time.time()
@@ -392,44 +409,10 @@ def func_outerjoin_Complete():
     reveal_globals.global_limit_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
     reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
     # func_assemble_start()
-    error_handler.restore_database_instance()
-
-#### start----  additions for nep
-# def extractedQ():
-# 	query = "Select " + reveal_globals.global_select_op_proc + "\n" + "From "  + reveal_globals.global_from_op
-# 	if reveal_globals.global_where_op.strip() != '':
-# 		query = query + "\n" + "Where " + reveal_globals.global_where_op
-# 	if reveal_globals.global_groupby_op.strip() != '':
-# 		query = query + "\n" + "Group By " + reveal_globals.global_groupby_op
-# 	if reveal_globals.global_orderby_op.strip() != '':
-# 		query = query + "\n" + "Order By " + reveal_globals.global_orderby_op
-# 	if reveal_globals.global_limit_op.strip() != '':
-# 		query = query + "\n" + "Limit " + reveal_globals.global_limit_op 
-# 	query = query + ";"
-# 	return query	
-
-# def func_nep_start():
-#     global w, root
-#     Q_E = extractedQ()
-#     reveal_globals.local_start_time = time.time()
-	
-# 	# Q_E_ = minimizer(reveal_globals.global_core_relations, Q_E)
-#     #sneha
-#     # Q_E_ = final_nep.sneha_nep_db_minimizer(reveal_globals.global_core_relations, Q_E)
-#     Q_E_ = nep.nep_algorithm(reveal_globals.global_core_relations, Q_E)
-#     print("Query with NEP", Q_E_)
-#     func_nep_Complete()
-
-# def func_nep_Complete():
-# 	global w, root
-	
-# 	reveal_globals.local_end_time = time.time()
-# 	reveal_globals.global_nep_time = str(round(reveal_globals.local_end_time - reveal_globals.local_start_time, 1)) + "      sec"
-# 	reveal_globals.global_tot_ext_time += reveal_globals.local_end_time - reveal_globals.local_start_time
-	
-# 	func_assemble_start()
-
-##### end --- additions for nep
+    error_handler.del_d1()
+    error_handler.delete_conn()
+    # func_nep_start()
+    
 
 def func_limit_Complete():
     print("inside:   reveal_proc_support.func_limit_Complete")
@@ -441,6 +424,7 @@ def func_limit_Complete():
         func_outerjoin_start()
     else:
         func_assemble_start()
+    # error_handler.restore_database_instance()
     # func_nep_start()
 
 def func_limit_start():
@@ -656,14 +640,14 @@ def func_filter_start():
     func_filter_Complete()
 
 def hash_result_comparator():
-    establishConnection()
+    dbcon.establishConnection()
     extracted_query=reveal_globals.output1
     res= executable.getExecOutput()
     reveal_globals.local_start_time = time.time()
     #call hash based result comparator
     a=result_comparator.match(extracted_query,res)
     reveal_globals.global_hashres_time = str(round(time.time() - reveal_globals.local_start_time, 1)) + "      sec"
-    reveal_globals.global_tot_ext_time +=round(time.time() - reveal_globals.local_start_time, 1)
+    # reveal_globals.global_tot_ext_time +=round(time.time() - reveal_globals.local_start_time, 1)
     # error_handler.restore_database_instance()
     if(a):
         print(" results Same")
@@ -685,7 +669,7 @@ if __name__ == '__main__':
 @app.route("/")
 def session_page():
     reveal_support_init()
-    establishConnection()
+    dbcon.establishConnection()
     return render_template('page1.html')
 
 @app.route("/query_input_page",methods=['POST','GET'])
@@ -698,7 +682,7 @@ def query_input_page():
     #     pass
     #     # n=request.form.get("uname")
     reveal_support_init()
-    establishConnection()
+    dbcon.establishConnection()
     return render_template('page1.html',er=reveal_globals.error,q=reveal_globals.query1)
 
 
@@ -801,7 +785,7 @@ def back_to_query_page():
 
 @app.route("/hash_result_comparator")
 def hash_result_comparator():
-    establishConnection()
+    dbcon.establishConnection()
     extracted_query=reveal_globals.output1
     res= executable.getExecOutput()
     #call hash based result comparator
@@ -858,7 +842,7 @@ if __name__=='__main__':
 
 
 reveal_support_init()
-establishConnection()
+dbcon.establishConnection()
 
 # print("minimizer====",reveal_globals.minimizer)
 #level-1
@@ -874,7 +858,7 @@ reveal_globals.minimizer="view_based"
 #Queries [Level - 2]
 #kkk report Q1, simplified
 #results done
-reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
+# reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
 #Q2
 #results done
 # reveal_globals.query1 = "Select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment From part, supplier, partsupp, nation, region Where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' Order by s_acctbal desc, n_name, s_name Limit 100;"
@@ -889,11 +873,18 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 # reveal_globals.query1 = " Select p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From partsupp, part Where p_partkey = ps_partkey and p_brand = 'Brand#45' and p_type Like 'SMALL PLATED%' and p_size >= 4 Group By p_brand, p_type, p_size Order by supplier_cnt desc, p_brand, p_type, p_size; "
 # run all tese queries and document extracted queries and their times
 
-
-# Select l returnflag, l linestatus, sum(l quantity) as sum qty, sum(l extendedprice) as sum base price, sum(l extendedprice * (1 - l discount)) as sum disc price, sum(l extendedprice * (1 - l discount) * (1 + l tax)) as sum charge, avg(l quantity) as avg qty, avg(l extendedprice) as avg price, avg(l discount) as avg disc, count(*) as count order From lineitem Where l shipdate ≤ date ‘1998-12-01’ - interval ‘71 days’ Group By l returnflag, l linestatus Order by l returnflag, l linestatus;
-
 # reveal_globals.query1="select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' order by s_acctbal desc, n_name, s_name limit 100;"
 # reveal_globals.query1= "  select * from lineitem where l_partkey =67310 and l_orderkey =  5649094;"
+
+################queries to test NEP extractor
+# reveal_globals.query1 ="select * from nation where n_nationkey<>20;" #extracted successfully
+# reveal_globals.query1 ="select * from region where r_regionkey<>4;" #extracted successfully
+# reveal_globals.query1 ="select * from nation,region where r_regionkey<>4;" #ext unsuccessful
+# reveal_globals.query1 ="select * from nation,region where n_name not in ('CANADA' ,'KENYA','RUSSIA','INDIA', 'GERMANY','IRAN','IRAQ','BRAZIL','CHINA','EGYPT','FRANCE') and r_name NOT IN ('ASIA', 'AFRICA');" #extracted 
+# reveal_globals.query1 ="select * from customer where c_mktsegment<>'HOUSEHOLD';"
+# reveal_globals.query1 ="select * from lineitem where l_returnflag<>'N';"
+# reveal_globals.query1 ="select * from nation,region where n_name <> 'CANADA' and r_name <>'ASIA';" #extracted 
+
 
 
 ###################
@@ -904,7 +895,7 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 # reveal_globals.query1="select * from partsupp left outer join part on ps_partkey=p_partkey where p_size>20 and ps_availqty>5000;"
 # reveal_globals.query1 ="select * from partsupp left outer join part on ps_partkey=p_partkey where ps_availqty>5000 limit 10;"
 # reveal_globals.query1="select * from supplier left outer join nation on s_nationkey=n_nationkey;"
-# reveal_globals.query1="select s_name, s_nationkey, n_nationkey, n_regionkey, r_regionkey from supplier left outer join nation on s_nationkey=n_nationkey left outer join region on n_regionkey=r_regionkey where s_acctbal>3000 order by s_name limit 10;"
+reveal_globals.query1="select s_name, s_nationkey, n_nationkey, n_regionkey, r_regionkey from supplier left outer join nation on s_nationkey=n_nationkey left outer join region on n_regionkey=r_regionkey where s_acctbal>3000 order by s_name limit 10;"
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from partsupp LEFT OUTER JOIN supplier ON ps_suppkey = s_suppkey LEFT OUTER JOIN part ON ps_partkey=p_partkey where ps_availqty>3000;"
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from part LEFT OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where ps_availqty>3000;"
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from part LEFT OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where p_retailprice>1000;"
@@ -934,6 +925,8 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 #ON & filter predicate
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part right outer join partsupp on p_partkey= ps_partkey and p_size>20  left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 ;"
 # reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20"
+# reveal_globals.query1="Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>=300 "
+
 # in below query projection clause not able to differentiate between ps_suppkey and l_suppkey
 # reveal_globals.query1=" Select ps_suppkey, l_suppkey, p_partkey, ps_partkey from part left outer join partsupp on p_partkey=ps_partkey left outer join lineitem on ps_suppkey=l_suppkey"
 # below modified version works fine
@@ -942,16 +935,19 @@ reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as s
 #7 jan
 # reveal_globals.query1="select p_partkey, ps_partkey, ps_suppkey, s_suppkey from part left outer join partsupp on p_partkey = ps_partkey right outer join supplier on ps_suppkey= s_suppkey"
 # reveal_globals.query1="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey full outer join lineitem on ps_suppkey=l_suppkey"
-# reveal_globals.query1="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 full outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10"
+# reveal_globals.query1="Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 RIGHT outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10 order by ps_availqty "
 
+
+# reveal_globals.query1 = "select * from partsupp left outer join part on ps_partkey=p_partkey where ps_availqty <> 3325;"
 reveal_vp_start_gui()
 
 op=reveal_globals.output1
 print(op)
-print("Error:  ",reveal_globals.error)
-x="Used correlated sampling : "+reveal_globals.correlated_sampling+ " and Used "+reveal_globals.minimizer+" minimizer " 
+print("Error:  ", reveal_globals.error)
+x="Used correlated sampling : " + reveal_globals.correlated_sampling + " and Used " + reveal_globals.minimizer + " minimizer " 
 print(x) 
-error_handler.restore_database_instance
+
+error_handler.restore_database_instance()
 # reveal_support_init()
 hash_result_comparator()
 

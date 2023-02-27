@@ -114,9 +114,9 @@ def getCoreRelations(method = 'rname'):
 				print("Error Occurred in table extraction. Error: " + str(error))
 				exit(1)
 	else: 
-		# cur = reveal_globals.global_conn.cursor()
-		# cur.execute("set statement_timeout to '2s'")
-		# cur.close()
+		cur = reveal_globals.global_conn.cursor()
+		cur.execute("set statement_timeout to '2s'")
+		cur.close()
   
 		# for extraction of outer joins we need to follows this method
 		if 'temp' in reveal_globals.global_all_relations:
@@ -133,12 +133,12 @@ def getCoreRelations(method = 'rname'):
 				cur.close()
     
 				try:
-					if not(check_lenRes()):
-						core_relations.append(tabname)
-					# new_result = executable.getExecOutput() #slow
-					# reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-					# if len(new_result) <= 1:
+					# if not(check_lenRes()):
 					# 	core_relations.append(tabname)
+					new_result = executable.getExecOutput() #slow
+					reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+					if len(new_result) <= 1:
+						core_relations.append(tabname)
 				except psycopg2.Error as e:
 					# establishConnection()
 					if e.pgcode == '42P01':
@@ -155,9 +155,9 @@ def getCoreRelations(method = 'rname'):
 				print("Error Occurred in table extraction. Error: " + str(error))
 				# exit(1)
 
-		# cur = reveal_globals.global_conn.cursor()
-		# cur.execute("set statement_timeout to '0s'")
-		# cur.close()
+		cur = reveal_globals.global_conn.cursor()
+		cur.execute("set statement_timeout to '0s'")
+		cur.close()
 	# print("from - line 113") #aman
 	print(core_relations)
 	return sorted(core_relations)

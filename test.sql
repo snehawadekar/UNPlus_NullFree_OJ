@@ -1,6 +1,6 @@
 -- delete from lineitem where l_suppkey > 100;
-delete from part where p_partkey >100;
-delete from partsupp where ps_partkey >100;
+-- delete from part where p_partkey >100;
+-- delete from partsupp where ps_partkey >100;
 
 -- \i C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNPlus_NullFree_OJ/test.sql
 --  \i C:/Users/Sneha/Documents/universal_unmasque_folder/unmasque_web_t/UNMASQUE-Web_backup-before-aoa_copy/test.sql
@@ -32,4 +32,56 @@ delete from partsupp where ps_partkey >100;
 -- Q16
 -- Select p_brand, p_type, p_size, count(ps_suppkey) as supplier_cnt From partsupp, part Where p_partkey = ps_partkey and p_brand = 'Brand#45' and p_type Like 'SMALL PLATED%' and p_size >= 4 Group By p_brand, p_type, p_size Order by supplier_cnt desc, p_brand, p_type, p_size;
 
-Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 full outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10;
+-- Select ps_suppkey, l_suppkey, p_partkey,ps_partkey from part full outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 full outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10;
+select count(*)
+from (
+Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20
+except 
+Select s_acctbal, ps_supplycost, p_size, ps_suppkey, p_partkey , s_suppkey From part , supplier Right Outer Join partsupp ON s_suppkey = ps_suppkey and s_acctbal >= 1000.01 Where p_size >= 21 and ps_supplycost >= 300.01
+) as foo;
+
+select *
+from (
+Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20
+except 
+Select s_acctbal, ps_supplycost, p_size, s_suppkey as ps_suppkey, p_partkey, ps_suppkey as s_suppkey From part , supplier Right Outer Join partsupp ON s_suppkey = ps_suppkey and s_acctbal >= 1000.01 Where p_size >= 21 and ps_supplycost >= 300.01
+) as foo;
+
+select count(*)
+from (
+
+Select s_acctbal, ps_supplycost, p_size, s_suppkey as ps_suppkey, p_partkey, ps_suppkey as s_suppkey From part , supplier Right Outer Join partsupp ON s_suppkey = ps_suppkey and s_acctbal >= 1000.01 Where p_size >= 21 and ps_supplycost >= 300.01
+except 
+Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20
+
+) as foo;
+
+select count(*)
+from (
+ 
+Select s_acctbal, ps_supplycost, p_size, ps_suppkey, p_partkey , s_suppkey From part , supplier Right Outer Join partsupp ON s_suppkey = ps_suppkey and s_acctbal >= 1000.01 Where p_size >= 21 and ps_supplycost >= 300.01
+except
+Select s_acctbal,ps_supplycost, p_size,  ps_suppkey, p_partkey , s_suppkey From part, partsupp left outer join supplier  on ps_suppkey=s_suppkey and s_acctbal>1000 where ps_supplycost>300 and p_size>20
+
+) as foo;
+
+select COUNT(*)
+from (
+Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 RIGHT outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10
+except
+Select ps_suppkey, l_suppkey, p_partkey, ps_partkey, l_quantity, ps_availqty, p_size From part Inner Join partsupp ON p_partkey = ps_partkey and p_size >= 5  Right Outer Join lineitem ON ps_suppkey = l_suppkey and l_quantity >= 10.01
+) as foo;
+
+select COUNT(*)
+from (
+Select ps_suppkey, l_suppkey, p_partkey, ps_partkey, l_quantity, ps_availqty, p_size From partsupp Right Outer Join lineitem ON ps_suppkey = l_suppkey and l_quantity >= 10.01 and ps_availqty >= 3351  Inner Join part ON ps_partkey = p_partkey and p_size >= 5
+except
+Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 RIGHT outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10
+) as foo;
+
+select count(*)
+from (
+Select ps_suppkey, l_suppkey, p_partkey,ps_partkey, l_quantity, ps_availqty, p_size from part LEFT outer join partsupp on p_partkey=ps_partkey and p_size>4 and ps_availqty>3350 RIGHT outer join lineitem on ps_suppkey=l_suppkey and l_quantity>10
+except 
+Select ps_suppkey, l_suppkey, p_partkey, ps_partkey, l_quantity, ps_availqty, p_size From partsupp Right Outer Join lineitem ON ps_suppkey = l_suppkey and l_quantity >= 10.01 and ps_availqty >= 3351  Inner Join part ON ps_partkey = p_partkey and p_size >= 5
+) as foo;

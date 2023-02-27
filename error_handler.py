@@ -1,9 +1,7 @@
 #restoring database properly checked befor adding aoa-14 dec
-
 import sys
-import psycopg2
-sys.path.append('../')
 import reveal_globals
+import dbcon
 def restore_database_instance():
 	if reveal_globals.global_restore_flag != True:
 		print('Restoring database instance to initial state.')
@@ -19,14 +17,24 @@ def restore_database_instance():
 			cur.close()
 		except:
 			pass
+	return
+		
+	#hardcoding for demo
+
+
+ 
+def del_d1():
+	print("deleting tabname4")
+	for tabname in reveal_globals.global_core_relations:
 		try:
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute('drop table ' + tabname + '4;')
 			cur.close()
 		except:
 			pass
-	#hardcoding for demo
-	
+
+def delete_conn():
+    	
 	if reveal_globals.global_conn is not None:
 		reveal_globals.global_conn.close()
 		reveal_globals.global_conn = None

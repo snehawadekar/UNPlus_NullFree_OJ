@@ -104,6 +104,7 @@ def getProjectedAttributes():
         att_order=att_order[:-1]
         att_order+=')'
         cur = reveal_globals.global_conn.cursor()
+        print("INSERT INTO " + tabname + att_order + " VALUES " + esc_string, insert_values)
         cur.execute("INSERT INTO " + tabname + att_order + " VALUES " + esc_string, insert_values)
         #conn.commit()
         cur.close()
@@ -121,7 +122,8 @@ def getProjectedAttributes():
     for val in new_result:
     	#check for value being decimal
         if is_number(val):
-            new_val = str(int(float(val)))
+            # new_val = str(int(float(val)))
+            new_val = str(val)
         else:
             new_val = val
         if new_val in value_used and not (any(value_used[value_used.index(new_val) - 1] in i for i in reveal_globals.global_filter_predicates)):
