@@ -28,22 +28,22 @@ def establishConnection():
     print("connected...")
     return True
    
-def check_lenRes():
-	cur=reveal_globals.global_conn.cursor()
-	query=reveal_globals.query1
-	reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
-	cur.execute(query)
-	res = cur.fetchall() #fetchone always return a tuple whereas fetchall return list
-	#print(res)
-	colnames = [desc[0] for desc in cur.description] 
-	cur.close()
-	# result.append(tuple(colnames))
-	if res is not None:
-		if len(res)>0:
-			return True
-		else:
-			return False
-	return False
+# def check_lenRes():
+# 	cur=reveal_globals.global_conn.cursor()
+# 	query=reveal_globals.query1
+# 	reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
+# 	cur.execute(query)
+# 	res = cur.fetchall() #fetchone always return a tuple whereas fetchall return list
+# 	#print(res)
+# 	colnames = [desc[0] for desc in cur.description] 
+# 	cur.close()
+# 	# result.append(tuple(colnames))
+# 	if res is not None:
+# 		if len(res)>0:
+# 			return True
+# 		else:
+# 			return False
+# 	return False
 
 
 
@@ -114,9 +114,10 @@ def getCoreRelations(method = 'rname'):
 				print("Error Occurred in table extraction. Error: " + str(error))
 				exit(1)
 	else: 
-		cur = reveal_globals.global_conn.cursor()
-		cur.execute("set statement_timeout to '2s'")
-		cur.close()
+		# establishConnection()
+		# cur = reveal_globals.global_conn.cursor()
+		# cur.execute("set statement_timeout to '2s'")
+		# cur.close()
   
 		# for extraction of outer joins we need to follows this method
 		if 'temp' in reveal_globals.global_all_relations:
@@ -125,6 +126,9 @@ def getCoreRelations(method = 'rname'):
 			cur.close()
 		for tabname in reveal_globals.global_all_relations:
 			establishConnection()
+			cur = reveal_globals.global_conn.cursor()
+			cur.execute("set statement_timeout to '2s'")
+			cur.close()
 			try:
 				cur = reveal_globals.global_conn.cursor()
 				if reveal_globals.global_db_engine != 'Microsoft SQL Server':
@@ -133,7 +137,6 @@ def getCoreRelations(method = 'rname'):
 				cur.close()
     
 				try:
-					
 					new_result = executable.getExecOutput() #slow
 					reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
 					if len(new_result) <= 1:
@@ -154,9 +157,12 @@ def getCoreRelations(method = 'rname'):
 				print("Error Occurred in table extraction. Error: " + str(error))
 				# exit(1)
 
-		cur = reveal_globals.global_conn.cursor()
-		cur.execute("set statement_timeout to '0s'")
-		cur.close()
+
+		# cur = reveal_globals.global_conn.cursor()
+		# cur.execute("set statement_timeout to '0s'")
+		# cur.close()
+		# establishConnection()
+
 	# print("from - line 113") #aman
 	print(core_relations)
 	return sorted(core_relations)

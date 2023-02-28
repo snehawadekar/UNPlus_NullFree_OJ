@@ -23,7 +23,6 @@ def getCoreSizes(core_relations):
 
 
 
-#this view based minimizer is using row_id we donot want to use it. 
 def reduce_Database_Instance(core_relations, method = 'binary partition', max_no_of_rows = 1, executable_path = ""):
 	reveal_globals.local_other_info_dict = {}
 	#Perform sampling

@@ -227,13 +227,13 @@ def func_min_start():
     # for i in temp:
     #     reveal_globals.global_all_relations.append(i[0])
     dbcon.establishConnection()
-    for tabname in reveal_globals.global_core_relations:
-        cur = reveal_globals.global_conn.cursor()
-        cur.execute("DROP TABLE IF EXISTS " + tabname + "_restore;")
-        cur.execute("Alter table " + tabname + " rename to " + tabname + "_restore;")
-        cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
-        cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
-        cur.close()
+    # for tabname in reveal_globals.global_core_relations:
+    #     cur = reveal_globals.global_conn.cursor()
+    #     cur.execute("DROP TABLE IF EXISTS " + tabname + "_restore;")
+    #     cur.execute("Alter table " + tabname + " rename to " + tabname + "_restore;")
+    #     cur.execute("create unlogged table " + tabname + " (like " + tabname + "_restore);")
+    #     cur.execute("Insert into " + tabname + " select * from " + tabname + "_restore;")
+    #     cur.close()
     print("inside:   reveal_proc_support.func_min_start")
     reveal_globals.local_start_time = time.time()
 	#INITIALIZATION
@@ -858,11 +858,11 @@ reveal_globals.minimizer="view_based"
 #Queries [Level - 2]
 #kkk report Q1, simplified
 #results done
-# reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
+reveal_globals.query1 = "Select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice) as sum_disc_price, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order From lineitem Where l_shipdate <= date '1998-12-01' - interval '71 days' Group By l_returnflag, l_linestatus Order by l_returnflag, l_linestatus;"
 #Q2
 #results done
 # reveal_globals.query1 = "Select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment From part, supplier, partsupp, nation, region Where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 38 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' Order by s_acctbal desc, n_name, s_name Limit 100;"
-#Q5
+# # Q5
 # reveal_globals.query1 = " Select n_name, sum(l_extendedprice) as revenue From customer, orders, lineitem, supplier, nation, region Where c_custkey = o_custkey and l_orderkey = o_orderkey and l_suppkey = s_suppkey and c_nationkey = s_nationkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and o_orderdate >= date '1994-01-01' and o_orderdate < date '1994-01-01' + interval '1' year Group By n_name Order by revenue desc Limit 100; "
 # Q4
 # reveal_globals.query1 = " Select o_orderdate, o_orderpriority, count(*) as order_count From orders Where o_orderdate >= date '1997-07-01' and o_orderdate < date '1997-07-01' + interval '3' month Group By o_orderkey, o_orderdate, o_orderpriority Order by o_orderpriority Limit 10; "
@@ -905,7 +905,7 @@ reveal_globals.minimizer="view_based"
 # reveal_globals.query1="select * from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey "
 
 # results same
-reveal_globals.query1="Select p_name , ps_availqty, s_phone from part FULL OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey"
+# reveal_globals.query1="Select p_name , ps_availqty, s_phone from part FULL OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey"
 # reveal_globals.query1="select p_partkey, ps_partkey, l_partkey from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey"
 # results same
 # reveal_globals.query1="select * from part full outer join partsupp on p_partkey=ps_partkey"
