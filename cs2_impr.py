@@ -22,7 +22,7 @@ def correlated_sampling_start():
     cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     getCoreSizes_cs(reveal_globals.global_all_relations)
     
-    for table in reveal_globals.global_all_relations:
+    for table in reveal_globals.global_core_relations:
         cur.execute("alter table " + table + " rename to " + table + "_tmp;")
     cur.close()
     #restore original tables somewhere
@@ -34,7 +34,7 @@ def correlated_sampling_start():
             itr = itr-1
         else:
             cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            for table in reveal_globals.global_all_relations:
+            for table in reveal_globals.global_core_relations:
                 cur.execute("drop table if exists " + table + "_tmp;")
             cur.close()
             reveal_globals.cs_time = time.time() - start_time
@@ -43,7 +43,7 @@ def correlated_sampling_start():
 
     print("correlated samplin failed totally starting with halving based minimization")
     cur = reveal_globals.global_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    for table in reveal_globals.global_all_relations:
+    for table in reveal_globals.global_core_relations:
         cur.execute("alter table " + table + "_tmp rename to " + table + " ;")
     cur.close()
     # cs sampling time

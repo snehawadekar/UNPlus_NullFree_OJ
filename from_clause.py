@@ -133,8 +133,7 @@ def getCoreRelations(method = 'rname'):
 				cur.close()
     
 				try:
-					# if not(check_lenRes()):
-					# 	core_relations.append(tabname)
+					
 					new_result = executable.getExecOutput() #slow
 					reveal_globals.global_no_execCall = reveal_globals.global_no_execCall + 1
 					if len(new_result) <= 1:

@@ -7,7 +7,7 @@ def restore_database_instance():
 		print('Restoring database instance to initial state.')
 	else:
 		return
-	for tabname in reveal_globals.global_all_relations:
+	for tabname in reveal_globals.global_core_relations:
 		try:
 			cur = reveal_globals.global_conn.cursor()
 			cur.execute('alter table ' + tabname + '_restore rename to ' + tabname + '2;')

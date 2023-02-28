@@ -227,7 +227,7 @@ def func_min_start():
     # for i in temp:
     #     reveal_globals.global_all_relations.append(i[0])
     dbcon.establishConnection()
-    for tabname in reveal_globals.global_all_relations:
+    for tabname in reveal_globals.global_core_relations:
         cur = reveal_globals.global_conn.cursor()
         cur.execute("DROP TABLE IF EXISTS " + tabname + "_restore;")
         cur.execute("Alter table " + tabname + " rename to " + tabname + "_restore;")
@@ -895,7 +895,7 @@ reveal_globals.minimizer="view_based"
 # reveal_globals.query1="select * from partsupp left outer join part on ps_partkey=p_partkey where p_size>20 and ps_availqty>5000;"
 # reveal_globals.query1 ="select * from partsupp left outer join part on ps_partkey=p_partkey where ps_availqty>5000 limit 10;"
 # reveal_globals.query1="select * from supplier left outer join nation on s_nationkey=n_nationkey;"
-reveal_globals.query1="select s_name, s_nationkey, n_nationkey, n_regionkey, r_regionkey from supplier left outer join nation on s_nationkey=n_nationkey left outer join region on n_regionkey=r_regionkey where s_acctbal>3000 order by s_name limit 10;"
+# reveal_globals.query1="select s_name, s_nationkey, n_nationkey, n_regionkey, r_regionkey from supplier left outer join nation on s_nationkey=n_nationkey left outer join region on n_regionkey=r_regionkey where s_acctbal>3000 order by s_name limit 10;"
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from partsupp LEFT OUTER JOIN supplier ON ps_suppkey = s_suppkey LEFT OUTER JOIN part ON ps_partkey=p_partkey where ps_availqty>3000;"
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from part LEFT OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where ps_availqty>3000;"
 # reveal_globals.query1="Select p_name , ps_availqty, s_phone from part LEFT OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey where p_retailprice>1000;"
@@ -905,7 +905,7 @@ reveal_globals.query1="select s_name, s_nationkey, n_nationkey, n_regionkey, r_r
 # reveal_globals.query1="select * from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey "
 
 # results same
-# reveal_globals.query1="Select p_name , ps_availqty, s_phone from part FULL OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey"
+reveal_globals.query1="Select p_name , ps_availqty, s_phone from part FULL OUTER JOIN partsupp ON p_partkey = ps_partkey LEFT OUTER JOIN supplier ON ps_suppkey=s_suppkey"
 # reveal_globals.query1="select p_partkey, ps_partkey, l_partkey from part left outer join lineitem on p_partkey=l_partkey right outer join partsupp on l_partkey=ps_partkey"
 # results same
 # reveal_globals.query1="select * from part full outer join partsupp on p_partkey=ps_partkey"
